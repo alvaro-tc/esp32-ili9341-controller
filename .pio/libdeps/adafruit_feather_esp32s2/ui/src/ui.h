@@ -35,6 +35,7 @@ extern "C" {
 #include "ui_Screen6.h"
 #include "ui_Screen7.h"
 #include "ui_Screen8.h"
+#include "ui_Screen9.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -74,6 +75,8 @@ LV_IMG_DECLARE(
     ui_img_signal_cellular_2_bar_50dp_15b9a8_fill0_wght400_grad0_opsz48_png);    // assets/signal_cellular_2_bar_50dp_15B9A8_FILL0_wght400_GRAD0_opsz48.png
 LV_IMG_DECLARE(
     ui_img_signal_cellular_4_bar_50dp_15b9a8_fill0_wght400_grad0_opsz48_png);    // assets/signal_cellular_4_bar_50dp_15B9A8_FILL0_wght400_GRAD0_opsz48.png
+LV_IMG_DECLARE(
+    ui_img_cell_tower_50dp_15b9a8_fill0_wght400_grad0_opsz48_png);    // assets/cell_tower_50dp_15B9A8_FILL0_wght400_GRAD0_opsz48.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Alegreya);

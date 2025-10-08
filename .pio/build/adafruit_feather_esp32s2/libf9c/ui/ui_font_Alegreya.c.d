@@ -238,4 +238,5 @@
  .pio/libdeps/adafruit_feather_esp32s2/ui/src/ui_Screen5.h \
  .pio/libdeps/adafruit_feather_esp32s2/ui/src/ui_Screen6.h \
  .pio/libdeps/adafruit_feather_esp32s2/ui/src/ui_Screen7.h \
- .pio/libdeps/adafruit_feather_esp32s2/ui/src/ui_Screen8.h
+ .pio/libdeps/adafruit_feather_esp32s2/ui/src/ui_Screen8.h \
+ .pio/libdeps/adafruit_feather_esp32s2/ui/src/ui_Screen9.h

@@ -6,6 +6,7 @@ ui_Screen5.c
 ui_Screen6.c
 ui_Screen7.c
 ui_Screen8.c
+ui_Screen9.c
 ui.c
 ui_comp_hook.c
 ui_helpers.c
@@ -25,5 +26,6 @@ ui_img_signal_cellular_0_bar_50dp_15b9a8_fill0_wght400_grad0_opsz48_png.c
 ui_img_signal_cellular_1_bar_50dp_15b9a8_fill0_wght400_grad0_opsz48_png.c
 ui_img_signal_cellular_2_bar_50dp_15b9a8_fill0_wght400_grad0_opsz48_png.c
 ui_img_signal_cellular_4_bar_50dp_15b9a8_fill0_wght400_grad0_opsz48_png.c
+ui_img_cell_tower_50dp_15b9a8_fill0_wght400_grad0_opsz48_png.c
 fonts/ui_font_Alegreya.c
 fonts/ui_font_Bakemono.c

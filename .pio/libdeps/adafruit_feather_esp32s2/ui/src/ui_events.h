@@ -34,6 +34,7 @@ void calibrate_intensidad1(lv_event_t * e);
 void calibrate_intensidad2(lv_event_t * e);
 void calibrate_intensidad3(lv_event_t * e);
 void calibrate_intensidad4(lv_event_t * e);
+void calibrate_canal(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

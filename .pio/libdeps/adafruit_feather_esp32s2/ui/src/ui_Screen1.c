@@ -44,6 +44,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_y(ui_Label1, -77);
     lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label1, "CONTROLLER");
+    lv_obj_add_flag(ui_Label1, LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
     lv_obj_clear_flag(ui_Label1, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
                       LV_OBJ_FLAG_SNAPPABLE);     /// Flags
     lv_obj_set_style_text_font(ui_Label1, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);

@@ -10,6 +10,7 @@ extern bool palanca3_calibration_mode;
 extern bool palanca4_calibration_mode;
 extern bool settings_calibration_mode;
 extern bool intensidad_calibration_mode;
+extern bool canal_calibration_mode; // << añadido
 
 extern void applyBrightness(int brightness_value);
 extern uint8_t getBrightnessLimit(void);
@@ -36,6 +37,10 @@ extern void updatePalanca2Vector(void);
 extern void updatePalanca3Vector(void);
 extern void updatePalanca4Vector(void);
 
+// getters/setters para índice 13 (extra config / canal)
+extern void setExtraConfig(uint8_t value);
+extern uint8_t getExtraConfig(void);
+
 extern uint8_t palanca1[3];
 extern uint8_t palanca2[3];
 extern uint8_t palanca3[3];
@@ -58,6 +63,9 @@ static uint8_t current_extra_limits[3] = {0, 0, 0};
 static uint8_t current_extra_position = 0;
 static uint8_t original_active_profile = 0;
 static uint8_t original_intensity = 1;
+
+static uint8_t original_canal = 0;   // << añadido
+static uint8_t current_canal = 0;    // << añadido
 
 void Button1_event_cb(lv_event_t * e)
 {
@@ -117,6 +125,16 @@ void Button1_event_cb(lv_event_t * e)
             char extra_str[4];
             sprintf(extra_str, "%d", current_extra_limits[current_extra_position]);
             lv_textarea_set_text(ui_TextArea3, extra_str);
+        }
+    }
+
+    if (canal_calibration_mode) {
+        if (current_canal > 0) {
+            current_canal--;
+            // aplicar visual en UI
+            char canal_str[5];
+            sprintf(canal_str, "%d", current_canal);
+            lv_textarea_set_text(ui_TextArea3, canal_str);
         }
     }
 }
@@ -179,6 +197,15 @@ void Button2_event_cb(lv_event_t * e)
             char extra_str[4];
             sprintf(extra_str, "%d", current_extra_limits[current_extra_position]);
             lv_textarea_set_text(ui_TextArea3, extra_str);
+        }
+    }
+
+    if (canal_calibration_mode) {
+        if (current_canal < 125) {
+            current_canal++;
+            char canal_str[5];
+            sprintf(canal_str, "%d", current_canal);
+            lv_textarea_set_text(ui_TextArea3, canal_str);
         }
     }
 }
@@ -628,6 +655,15 @@ void cancelar_cambios(lv_event_t * e)
         intensidad_calibration_mode = false;
     }
     
+    if (canal_calibration_mode) {
+        // restaurar valor original
+        setExtraConfig(original_canal);
+        char canal_str[5];
+        sprintf(canal_str, "%d", original_canal);
+        lv_textarea_set_text(ui_TextArea3, canal_str);
+        canal_calibration_mode = false;
+    }
+
     if (settings_calibration_mode) {
         setActiveProfile(original_active_profile);
         
@@ -712,12 +748,20 @@ void guardarCambios(lv_event_t * e)
         palanca4_calibration_mode = false;
     }
     
+    if (canal_calibration_mode) {
+        // asegurar rango y guardar
+        if (current_canal > 125) current_canal = 125;
+        setExtraConfig(current_canal);
+        saveCurrentConfig();
+        canal_calibration_mode = false;
+    }
+
     if (settings_calibration_mode) {
         saveCurrentConfig();
         
         settings_calibration_mode = false;
     }
-    
+
     if (intensidad_calibration_mode) {
         saveCurrentConfig();
         
@@ -811,6 +855,7 @@ void salir_configuracion(lv_event_t * e)
     palanca4_calibration_mode = false;
     settings_calibration_mode = false;
     intensidad_calibration_mode = false;
+    canal_calibration_mode = false; // << añadido
     
     // Aquí puedes agregar código para cambiar de pantalla o cerrar la configuración
     // Por ejemplo, si tienes una función para ir a la pantalla principal:

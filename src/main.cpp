@@ -13,7 +13,7 @@ Joystick joystick_izquierdo(5, 2, 4);
 Joystick joystick_derecho(8, 9, 10);
 
 #define TFT_LED 38
-#define BATTERY 1
+#define BATTERY 3
 
 #define NRF24_CE 6
 #define NRF24_CSN 7
@@ -172,6 +172,7 @@ bool palanca3_calibration_mode = false;
 bool palanca4_calibration_mode = false;
 bool settings_calibration_mode = false;
 bool intensidad_calibration_mode = false;
+bool canal_calibration_mode = false; // << añadido
 
 extern "C" {
     void applyBrightness(int brightness_value);
@@ -198,6 +199,10 @@ extern "C" {
     void updatePalanca2Vector();
     void updatePalanca3Vector();
     void updatePalanca4Vector();
+
+    // getters/setters para índice 13 (canal)
+    void setExtraConfig(uint8_t value);
+    uint8_t getExtraConfig(void);
 }
 
 TFT_eSPI tft = TFT_eSPI(); 
@@ -205,6 +210,9 @@ static const uint16_t screenWidth  = 320;
 static const uint16_t screenHeight = 240;
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[ screenWidth * screenHeight / 10 ];
+
+// Añadir un style global (inicializarlo UNA vez en setup)
+static lv_style_t style_bar_indicator;
 
 void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p )
 {
@@ -355,6 +363,15 @@ void updatePalanca4Vector() {
     palanca4[2] = temp_limits[2];
 }
 
+// wrapper para index 13 (extra config / canal)
+void setExtraConfig(uint8_t value) {
+    config.setExtraConfig(value);
+}
+
+uint8_t getExtraConfig(void) {
+    return config.getExtraConfig();
+}
+
 void setup() {
     pinMode(TFT_LED, OUTPUT);
     pinMode(BATTERY, INPUT);
@@ -416,6 +433,21 @@ void setup() {
 
     ui_init();
 
+    // Inicializar el style UNA sola vez (antes lo hacías en loop y reiniciaba/duplicaba)
+    lv_style_init(&style_bar_indicator);
+    lv_style_set_bg_color(&style_bar_indicator, lv_color_hex(0x00FF00));
+    lv_style_set_bg_opa(&style_bar_indicator, LV_OPA_COVER);
+    // Aplicar el style al indicador de la barra (ui_BarN existen después de ui_init)
+    lv_obj_add_style(ui_Bar5,  &style_bar_indicator, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_Bar4,  &style_bar_indicator, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_Bar9,  &style_bar_indicator, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_Bar1,  &style_bar_indicator, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_Bar7,  &style_bar_indicator, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_Bar6,  &style_bar_indicator, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_Bar2,  &style_bar_indicator, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_Bar3,  &style_bar_indicator, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_Bar8,  &style_bar_indicator, LV_PART_INDICATOR);
+
     // Inicializar NRF24L01
     pinMode(NRF24_CE, OUTPUT);
     pinMode(NRF24_CSN, OUTPUT);
@@ -442,7 +474,8 @@ void setup() {
             radio.setPALevel(RF24_PA_LOW);
             break;
         }
-        radio.setChannel(76);
+        // Valor por defecto 76 (canal 76)
+        radio.setChannel(config.getExtraConfig());
         radio.openWritingPipe(config.getNRFAddress());
         radio.stopListening();
         sent_data.ch1 = 0;
@@ -481,17 +514,75 @@ void setup() {
     joystick_derecho.invertAxis(false, false);
 }
 
-void loop(void) {
+
+// Valores de calibración para la lectura del ADC
+const int ADC_bajo = 4850;   // ADC medido con batería baja (~3.3V)
+const int ADC_alto = 6140;   // ADC medido con batería cargada (4.17V)
+const float V_bajo = 3.3;    // Voltaje correspondiente al ADC_bajo
+const float V_alto = 4.17;   // Voltaje correspondiente al ADC_alto
+
+// Calculamos pendiente y offset
+const float m = (V_alto - V_bajo) / (ADC_alto - ADC_bajo);
+const float b = V_bajo - m * ADC_bajo;
 
 
-    Serial.print("Bateria: ");
-    Serial.print(analogRead(BATTERY)); // Leer el valor analógico del pin 40
-    lv_label_set_text(ui_Label1, String(analogRead(BATTERY)).c_str());
+// Función que devuelve el voltaje real (lectura suavizada para evitar fluctuaciones)
+float leerVoltaje() {
+  // filtro exponencial (EMA) - ajusta alpha entre 0.02..0.15 según suavidad deseada
+  const float alpha = 0.08f; // 0 = muy suave / 1 = sin suavizado
+  static float filtered_v = 0.0f;
+  static bool initialized = false;
 
-    Serial.println("  ");
+  int lectura = analogRead(BATTERY);
+  float v_raw = m * lectura + b;
 
- 
+  if (!initialized) {
+    filtered_v = v_raw;
+    initialized = true;
+  } else {
+    filtered_v += alpha * (v_raw - filtered_v);
+  }
+
+  return filtered_v;
+}
+
+// Función que devuelve el porcentaje de batería
+int leerPorcentaje() {
+  float v = leerVoltaje();
+  int pct = (v - V_bajo) / (V_alto - V_bajo) * 100;
+  if (pct > 100) pct = 100;
+  if (pct < 0) pct = 0;
+  return pct;
+}
+
+
+
+void loop() {
+
+    // ANTES: se inicializaba y añadía el style en cada iteración -> provoca fugas / corrupción LVGL
+    // AHORA: solo actualizamos valor y color del style (sin re-inicializar ni re-adjuntar)
     
+    int pct = leerPorcentaje();
+
+    // Actualizar todos los indicadores de batería con el mismo valor
+    lv_bar_set_value(ui_Bar5, pct, LV_ANIM_ON);
+    lv_bar_set_value(ui_Bar4, pct, LV_ANIM_ON);
+    lv_bar_set_value(ui_Bar9, pct, LV_ANIM_ON);
+    lv_bar_set_value(ui_Bar1, pct, LV_ANIM_ON);
+    lv_bar_set_value(ui_Bar7, pct, LV_ANIM_ON);
+    lv_bar_set_value(ui_Bar6, pct, LV_ANIM_ON);
+    lv_bar_set_value(ui_Bar2, pct, LV_ANIM_ON);
+    lv_bar_set_value(ui_Bar3, pct, LV_ANIM_ON);
+    lv_bar_set_value(ui_Bar8, pct, LV_ANIM_ON);
+
+    // Cambiamos color según porcentaje (solo actualizar el style ya registrado)
+    if (pct < 15) {
+        lv_style_set_bg_color(&style_bar_indicator, lv_color_hex(0xFF0000));
+    } else {
+        lv_style_set_bg_color(&style_bar_indicator, lv_color_hex(0x00FF00));
+    }
+
+
     int val_izquierdo_Y = joystick_izquierdo.readY();
     if (val_izquierdo_Y > 0) {
         if(joystick_derecho.isPressed()){
