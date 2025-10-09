@@ -685,7 +685,7 @@ void loop() {
     }
 
 
-    int mapped_value = map((sent_data.ch1 + sent_data.ch2), 0, 255, -1300, 1300);
+    int mapped_value = map((sent_data.ch1 + sent_data.ch2), 0, 255, -1355, 1300);
     // Puedes usar mapped_value como necesites, por ejemplo:
     lv_img_set_angle(ui_Image28, mapped_value); // Ángulo en décimas de grado
 
