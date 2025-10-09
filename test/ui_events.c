@@ -1,3 +1,4 @@
+
 #include "ui.h"
 #include <stdio.h>
 #include <string.h>
@@ -287,6 +288,21 @@ void calibrate_extra(lv_event_t * e)
     current_extra_limits[0] = original_extra_limits[0];
     current_extra_limits[1] = original_extra_limits[1];
     current_extra_limits[2] = original_extra_limits[2];
+}
+
+void calibrate_canal(lv_event_t * e)
+{
+    canal_calibration_mode = true;
+    
+    // leer valor actual (índice 13)
+    original_canal = getExtraConfig();
+    current_canal = original_canal;
+    
+    lv_label_set_text(ui_Label4, "Calibrar Canal");
+    
+    char canal_str[5];
+    sprintf(canal_str, "%d", current_canal);
+    lv_textarea_set_text(ui_TextArea3, canal_str);
 }
 
 void calibrar_settings(lv_event_t * e)

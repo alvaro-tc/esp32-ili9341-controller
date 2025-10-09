@@ -47,8 +47,8 @@ extern lv_obj_t * ui____initial_actions0;
 // IMAGES AND IMAGE SETS
 LV_IMG_DECLARE(
     ui_img_settings_50dp_15b9a8_fill0_wght400_grad0_opsz48_png);    // assets/settings_50dp_15B9A8_FILL0_wght400_GRAD0_opsz48.png
-LV_IMG_DECLARE(
-    ui_img_speed_50dp_15b9a8_fill0_wght400_grad0_opsz48_png);    // assets/speed_50dp_15B9A8_FILL0_wght400_GRAD0_opsz48.png
+LV_IMG_DECLARE(ui_img_145_png);    // assets/145.png
+LV_IMG_DECLARE(ui_img_12_png);    // assets/12.png
 LV_IMG_DECLARE(
     ui_img_undo_50dp_15b9a8_fill0_wght400_grad0_opsz48_png);    // assets/undo_50dp_15B9A8_FILL0_wght400_GRAD0_opsz48.png
 LV_IMG_DECLARE(
@@ -57,6 +57,8 @@ LV_IMG_DECLARE(
     ui_img_pin_50dp_15b9a8_fill0_wght400_grad0_opsz48_png);    // assets/pin_50dp_15B9A8_FILL0_wght400_GRAD0_opsz48.png
 LV_IMG_DECLARE(
     ui_img_brightness_6_50dp_15b9a8_fill0_wght400_grad0_opsz48_png);    // assets/brightness_6_50dp_15B9A8_FILL0_wght400_GRAD0_opsz48.png
+LV_IMG_DECLARE(
+    ui_img_speed_50dp_15b9a8_fill0_wght400_grad0_opsz48_png);    // assets/speed_50dp_15B9A8_FILL0_wght400_GRAD0_opsz48.png
 LV_IMG_DECLARE(
     ui_img_local_fire_department_50dp_15b9a8_fill0_wght400_grad0_opsz48_png);    // assets/local_fire_department_50dp_15B9A8_FILL0_wght400_GRAD0_opsz48.png
 LV_IMG_DECLARE(
